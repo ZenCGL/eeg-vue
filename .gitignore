@@ -1,0 +1,10 @@
+**/.idea
+**/mvnw
+**/mvnw.cmd
+**/.mvn
+**/target/
+**/review-service/
+**/renren-fast/
+**/renren-generator/
+
+**/item-service/node_modules/
