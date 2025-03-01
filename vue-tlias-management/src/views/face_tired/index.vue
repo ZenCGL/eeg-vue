@@ -48,16 +48,85 @@ const handleVideoSuccess = (res, file) => {
 
 <template>
   <div class="common-layout">
-    <el-container>
-  <el-header><div >放一些信息</div></el-header>
-  <!-- <div class="upload-container"> -->
+    <el-container class="outside-container">
+  <el-header><div >
+  <el-descriptions 
+  class="margin-top"
+  title="所查看用户的面部检测"  
+  :column="6"
+  :size="small"
+  border
+  >
+    <template #extra>
+      <el-button type="primary">重新选择</el-button>
+    </template>
+    <el-descriptions-item>
+      <template #label>
+        <div class="cell-item">
+          <el-icon :style="iconStyle">
+            <postcard />
+          </el-icon>
+          用户工号
+        </div>
+      </template>
+      12345
+    </el-descriptions-item>
+    <el-descriptions-item>
+      <template #label>
+        <div class="cell-item">
+          <el-icon :style="iconStyle">
+            <user />
+          </el-icon>
+          用户姓名
+        </div>
+      </template>
+      张三
+    </el-descriptions-item>
+    <el-descriptions-item>
+      <template #label>
+        <div class="cell-item">
+          <el-icon><OfficeBuilding /></el-icon>
+          部门
+        </div>
+      </template>
+      变电站
+    </el-descriptions-item>
+    <el-descriptions-item>
+      <template #label>
+        <div class="cell-item">
+          <el-icon><Avatar /></el-icon>
+          职务
+        </div>
+      </template>
+      值班员
+    </el-descriptions-item>
+    <el-descriptions-item>
+      <template #label>
+        <div class="cell-item">
+          <el-icon><Watch /></el-icon>
+          年龄
+        </div>
+      </template>
+      35
+    </el-descriptions-item>
+    <el-descriptions-item>
+      <template #label>
+        <div class="cell-item">
+          <el-icon><UserFilled /></el-icon>
+          性别
+        </div>
+      </template>
+      男
+    </el-descriptions-item>
+  </el-descriptions>
+</div></el-header>
+
     <el-container>
     <el-main>
     <!-- 视频上传区域 -->
-    <el-form-item class="video-upload-item" prop="storageurl" label-position="top">
+    <el-form-item class="video-upload-item" prop="storageurl">
       <el-upload
-
-        class="avatar-uploader"
+      class="el-upload"
         action="实际的上传视频的后台地址"
         :show-file-list="false"
         :on-success="handleVideoSuccess"
@@ -109,8 +178,12 @@ const handleVideoSuccess = (res, file) => {
   display: flex;
   align-items: center;
   gap: 20px; /* 调整左右间距 */
+  height: 100%;
 }
-
+:deep(.el-upload__tip){
+  height: 10%;
+  width: 100%;
+}
 .left-info {
   width: 200px; /* 左边信息区域的宽度 */
   background-color: #f0f0f0;
@@ -121,58 +194,25 @@ const handleVideoSuccess = (res, file) => {
 
 .video-upload-item {
   display: flex;
-  justify-content: center;
   width: 100%;
+  height: 90%;
+
 }
-.avatar-uploader {
+
+:deep(.el-upload) {
   width: 100%; /* 根据需要设置宽度 */
-  height: 100%; /* 自动调整高度 */
-}
-.avatar-uploader-icon {
-  border: 1px dashed #d9d9d9 !important;
-}
-
-.avatar-uploader .el-upload {
-  border: 2px dashed #d9d9d9 !important;
-  border-radius: 6px !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.avatar-uploader .el-upload:hover {
-  border: 2px dashed #d9d9d9 !important;
-  border-color: #409eff;
-}
-
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 300px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
-
-.avatar {
-  width: 100%;
-  height: 178px;
-  display: block;
-}
-
-.el-upload--drag {
-  border: 1px dashed #d9d9d9 !important;
-  border-radius: 6px !important;
-  position: relative !important;
-  overflow: hidden !important;
+  height: 90%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: 100%;
-  height: 300px; 
 }
-
+:deep(.el-upload .el-upload-dragger){
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 .upload-content {
   display: flex;
   flex-direction: column;
@@ -180,18 +220,27 @@ const handleVideoSuccess = (res, file) => {
   justify-content: center;
   width: 100%;
   height: 100%;
-}
 
-.video-text {
-  margin-top: 0;
-  text-align: center;
-  color: #606266;
-  font-size: 14px;
-  line-height: 1.3;
-  min-height: 40px;
 }
 
 .el-progress-circle {
   margin-top: 20px;
+}
+.outside-container{
+        height: 100%;
+
+    }
+.el-main{
+      align-items: stretch;
+      height: 100%;
+  }
+.common-layout{
+  height: 100%;
+}
+.el-header{
+  height: 15%;
+}
+.el-aside{
+  background-color: yellow;
 }
 </style>
