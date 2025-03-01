@@ -1,11 +1,23 @@
 <script setup>
 import { ref } from 'vue';
 import { ElMessage, ElUpload, ElProgress } from 'element-plus';
-
 const videoForm = ref({
   storageurl: ''
 });
-
+// const CS = ref({
+//       'text-align': 'center',  //文本居中
+//       'min-width': '250px',   //最小宽度
+//       'word-break': 'break-all'  //过长时自动换行
+//     });
+// const LS = ref( {
+//       'color': '#000',
+//       'text-align': 'center',
+//       'font-weight': '600',
+//       'height': '40px',
+//       'background-color': 'rgba(255, 97, 2, 0.1)',
+//       'min-width': '110px',
+//       'word-break': 'keep-all'
+//     });
 const videoFlag = ref(false);
 const videoUploadPercent = ref(0);
 
@@ -119,7 +131,9 @@ const handleVideoSuccess = (res, file) => {
       男
     </el-descriptions-item>
   </el-descriptions>
-</div></el-header>
+</div>
+<el-divider />
+</el-header>
 
     <el-container>
     <el-main>
@@ -165,8 +179,31 @@ const handleVideoSuccess = (res, file) => {
         </div>
       </el-upload>
     </el-form-item>
+    
   </el-main>
-    <el-aside width="30%"><div class="left-info">这里放信息</div></el-aside>
+  <!-- <el-divider direction="vertical" /> -->
+    <el-aside >
+      <el-descriptions
+    title="视频监测信息"
+    :column="1"
+
+    class="asideDes"
+    :content-style="{
+    'text-align': 'center',
+    'min-width': '250px',
+    'word-break': 'break-all'
+  }"
+    
+  >
+    <el-descriptions-item label="时间" :label-class-name="label-style">2024年12月21日 09:15:30:00</el-descriptions-item>
+    <el-descriptions-item label="帧宽度"  >1920</el-descriptions-item>
+    <el-descriptions-item label="帧高度" >1080</el-descriptions-item>
+    <el-descriptions-item label="帧速率" >23.98fps</el-descriptions-item>
+    <el-descriptions-item label="面部危险等级"
+    ><span style="background-color: #E6E8EB">Hello</span></el-descriptions-item>
+    <el-descriptions-item label="是否需要停工" ><el-text class="mx-1" type="danger">否</el-text></el-descriptions-item>
+  </el-descriptions>
+    </el-aside>
     <!-- 左边放置信息的区域 -->
   </el-container>
   </el-container>
@@ -184,13 +221,7 @@ const handleVideoSuccess = (res, file) => {
   height: 10%;
   width: 100%;
 }
-.left-info {
-  width: 200px; /* 左边信息区域的宽度 */
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 4px;
-  text-align: center;
-}
+
 
 .video-upload-item {
   display: flex;
@@ -241,6 +272,48 @@ const handleVideoSuccess = (res, file) => {
   height: 15%;
 }
 .el-aside{
-  background-color: yellow;
+  align-items:center;
+  display: flex;
+  flex-direction: column;
+  align-content: space-between;
+  align-items: center;
+  justify-content: center;
+  height: 70%;
+  width: 30%;
 }
+.asideDes {
+  width: 100%;
+  height: 80%;
+}
+/* 确保描述项容器填充高度 */
+:deep(.el-descriptions__body) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+:deep(.asideDes .el-descriptions__label){
+  width: 100%;
+}
+:deep(.asideDes .el-descriptions__content){
+  width: 100%;
+}
+/* 使描述项容器内容自动填充 */
+:deep(.el-descriptions__table) {
+  flex: 1;
+}
+.content-cell {
+  text-align: right !important;
+  width: 50%; /* 可根据需要调整内容区域宽度 */
+  background-color: black;
+  color: blue;
+}
+.label-style{
+    color: red;
+    text-align: center;
+    font-weight: 600;
+    height: 40px;
+    min-width: 110px;
+    word-break: keep-all
+  }
 </style>
