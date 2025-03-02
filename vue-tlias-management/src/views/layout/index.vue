@@ -2,7 +2,7 @@
 import {ref, onMounted} from 'vue';
 import {ElMessageBox, ElMessage} from 'element-plus';
 import { useRouter } from 'vue-router';
-
+import logo from '@/assets/logo.png'; 
 //当前登录员工
 const loginName = ref('');
 const router = useRouter();
@@ -36,7 +36,10 @@ const logout = () => {
     <el-container>
       <!-- Header 区域 -->
       <el-header class="header">
-        <span class="title">疲劳检测系统</span>
+        
+        <div class="header-content">
+          <el-image style="width: 20%; " :src="logo" :fit="fill" />
+          <span class="title">新一代作业人员疲劳状态早期识别系统</span>
         <span class="right_tool">
           <a href="">
             <el-icon><EditPen /></el-icon> 修改密码 &nbsp;&nbsp;&nbsp; |  &nbsp;&nbsp;&nbsp;
@@ -45,6 +48,7 @@ const logout = () => {
             <el-icon><SwitchButton /></el-icon> 退出登录 【{{loginName}}】
           </a>
         </span>
+        </div>
       </el-header>
       
       <el-container>
@@ -77,7 +81,7 @@ const logout = () => {
                 <el-icon><TrendCharts /></el-icon>脑电波监测
               </template>
               <el-menu-item index="/dept">
-                员工选择
+                用户选择
               </el-menu-item>
               <el-menu-item index="/emp">
                 脑电波监测
@@ -111,15 +115,31 @@ const logout = () => {
 
 <style scoped>
 .header {
-  background-image: linear-gradient(to right, #00547d, #007fa4, #00aaa0, #00d072, #a8eb12);
+  /* background-image: linear-gradient(to right, #00547d, #007fa4, #00aaa0, #00d072, #a8eb12); */
+  height: 20%;
+  display: flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center
 }
-
+.header-content {
+  width: 100%;
+  height: 50%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
 .title {
-  color: white;
+  color: black;
   font-size: 40px;
   font-family: 楷体;
   line-height: 60px;
   font-weight: bolder;
+  margin: auto;
+  text-align: center;
+
+  
 }
 
 .right_tool{
@@ -128,7 +148,7 @@ const logout = () => {
 }
 
 a {
-  color: white;
+  color: black;
   text-decoration: none;
 }
 
