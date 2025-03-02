@@ -81,7 +81,7 @@ const logout = () => {
                 <el-icon><TrendCharts /></el-icon>脑电波监测
               </template>
               <el-menu-item index="/dept">
-                用户选择
+                员工选择
               </el-menu-item>
               <el-menu-item index="/emp">
                 脑电波监测

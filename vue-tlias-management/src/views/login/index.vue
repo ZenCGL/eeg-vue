@@ -32,7 +32,7 @@ const clear = () => {
   <div id="container">
     <div class="login-form">
       <el-form label-width="80px">
-        <p class="title">Tlias智能学习辅助系统</p>
+        <p class="title">新一代作业人员疲劳状态早期识别系统</p>
         <el-form-item label="用户名" prop="username">
           <el-input v-model="loginForm.username" placeholder="请输入用户名"></el-input>
         </el-form-item>
@@ -54,7 +54,7 @@ const clear = () => {
 #container {
   padding: 10%;
   height: 410px;
-  background-image: url('../../assets/bg1.jpg');
+  background-image: url('../../assets/login.png');
   background-repeat: no-repeat;
   background-size: cover;
 }
