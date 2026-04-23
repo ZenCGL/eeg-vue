@@ -3,7 +3,11 @@
 </script>
 
 <template>
-  <img src="../../assets/index.png">
+   <img
+    class="welcome-img"
+    src="../../assets/index.png"
+    alt="欢迎页"
+  />
 </template>
 
 <style scoped>

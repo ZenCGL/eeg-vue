@@ -11,6 +11,7 @@ import StuReportView from '@/views/report/stu/index.vue'
 import LayoutView from '@/views/layout/index.vue'
 import LoginView from '@/views/login/index.vue'
 import FaceTiredView from '@/views/face_tired/index.vue'
+import BrainWaveView from '@/views/brain_wave/index.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -23,6 +24,7 @@ const router = createRouter({
       {path: 'index', name: 'index', component: IndexView},
       {path: 'clazz', name: 'clazz', component: ClazzView},
       {path: 'face_tired', name: 'face_tired', component: FaceTiredView},
+      {path: 'brain_wave', name: 'brain_wave', component: BrainWaveView,props: true},
       {path: 'stu', name: 'stu', component: StuView},
       {path: 'dept', name: 'dept', component: DeptView},
       {path: 'emp', name: 'emp', component: EmpView},

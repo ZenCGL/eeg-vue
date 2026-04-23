@@ -16,3 +16,15 @@ export const updateApi = (emp) =>  request.put('/emps', emp);
 //删除
 export const deleteApi = (ids) =>  request.delete(`/emps?ids=${ids}`);
 
+export function monitor(router, employeeId) {
+  router.push({
+    path: '/brain_wave',
+    params: { employeeId }
+  })
+}
+export function face(router, employeeId) {
+  router.push({
+    path: '/face_tired',
+    params: { employeeId }
+  })
+}

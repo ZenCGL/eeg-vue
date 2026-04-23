@@ -38,7 +38,6 @@ const logout = () => {
       <el-header class="header">
         
         <div class="header-content">
-          <el-image style="width: 20%; " :src="logo" :fit="fill" />
           <span class="title">新一代作业人员疲劳状态早期识别系统</span>
         <span class="right_tool">
           <a href="">
@@ -67,11 +66,11 @@ const logout = () => {
               <template #title>
                 <el-icon><Menu /></el-icon> 后台管理
               </template>
-              <el-menu-item index="/stu">
-                用户管理
+              <el-menu-item index="/dept">
+                部门管理
               </el-menu-item>
-              <el-menu-item index="/stu">
-                数据管理
+              <el-menu-item index="/emp">
+                员工选择
               </el-menu-item>
             </el-sub-menu>
             
@@ -80,11 +79,8 @@ const logout = () => {
               <template #title>
                 <el-icon><TrendCharts /></el-icon>脑电波监测
               </template>
-              <el-menu-item index="/dept">
-                员工选择
-              </el-menu-item>
-              <el-menu-item index="/emp">
-                脑电波监测
+              <el-menu-item index="/brain_wave">
+                脑电波监测详情
               </el-menu-item>
             </el-sub-menu>
 
@@ -93,9 +89,6 @@ const logout = () => {
               <template #title>
                 <el-icon><VideoCameraFilled /></el-icon>面部监测
               </template>
-              <el-menu-item index="/empReport">
-                员工选择
-              </el-menu-item>
               <el-menu-item index="/face_tired">
                 面部监测详情
               </el-menu-item>

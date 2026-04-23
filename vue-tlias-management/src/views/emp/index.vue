@@ -1,12 +1,12 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { queryPageApi, addApi, queryInfoApi, updateApi, deleteApi } from '@/api/emp';
+import { queryPageApi, addApi, queryInfoApi, updateApi, deleteApi,face } from '@/api/emp';
 import { queryAllApi as queryAllDeptApi } from '@/api/dept';
 import { ElMessage, ElMessageBox } from 'element-plus'
-
+import { useRouter } from 'vue-router';
 //token
 const token = ref('');
-
+const router = useRouter();
 //元数据
 //职位列表数据
 const jobs = ref([{ name: '班主任', value: 1 },{ name: '讲师', value: 2 },{ name: '学工主管', value: 3 },{ name: '教研主管', value: 4 },{ name: '咨询师', value: 5 },{ name: '其他', value: 6 }])
@@ -303,7 +303,12 @@ const deleteByIds = () => {
     ElMessage.info('您已取消删除');
   })
 }
-
+function onMonitorClick(id) {
+  router.push({ name: 'brain_wave', params: { workerId: id } })
+}
+function onFaceClick(id) {
+  face(router, id)
+}
 </script>
 
 <template>
@@ -375,6 +380,28 @@ const deleteByIds = () => {
       </el-table-column>
       <el-table-column prop="entryDate" label="入职日期" width="180"  align="center"/>
       <el-table-column prop="updateTime" label="最后操作时间" width="200"  align="center"/>
+      <el-table-column label="脑电波监测" width="140" align="center">
+        <template #default="scope">
+          <el-button
+            type="success"
+            size="small"
+            @click="onMonitorClick(scope.row.id)"
+          >
+            脑电波监测
+          </el-button>
+        </template>
+      </el-table-column>
+      <el-table-column label="面部疲劳" width="140" align="center">
+        <template #default="scope">
+          <el-button
+            type="success"
+            size="small"
+            @click="onFaceClick(scope.row.id)"
+          >
+            面部疲劳检测
+          </el-button>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button type="primary" size="small" @click="edit(scope.row.id)"><el-icon><EditPen /></el-icon> 编辑</el-button>
