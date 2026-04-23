@@ -18,6 +18,10 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/eeg': {
+        target: 'http://127.0.0.1:5000',
+        changeOrigin: true
       }
     }
   }

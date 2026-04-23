@@ -312,7 +312,7 @@ function onFaceClick(id) {
 </script>
 
 <template>
-  <h1>员工管理</h1>
+  <h1>管理人员</h1>
 
   <!-- 搜索栏 -->
   <div class="container">
@@ -362,11 +362,6 @@ function onFaceClick(id) {
           {{ scope.row.gender == 1 ? '男' : '女' }}
         </template>
       </el-table-column>
-      <el-table-column label="头像" width="120"  align="center">
-        <template #default="scope">
-          <img :src="scope.row.image" height="30px">
-        </template>
-      </el-table-column>
       <el-table-column prop="deptName" label="所属部门" width="120"  align="center"/>
       <el-table-column prop="job" label="职位" width="120"  align="center">
         <template #default="scope">
@@ -380,28 +375,6 @@ function onFaceClick(id) {
       </el-table-column>
       <el-table-column prop="entryDate" label="入职日期" width="180"  align="center"/>
       <el-table-column prop="updateTime" label="最后操作时间" width="200"  align="center"/>
-      <el-table-column label="脑电波监测" width="140" align="center">
-        <template #default="scope">
-          <el-button
-            type="success"
-            size="small"
-            @click="onMonitorClick(scope.row.id)"
-          >
-            脑电波监测
-          </el-button>
-        </template>
-      </el-table-column>
-      <el-table-column label="面部疲劳" width="140" align="center">
-        <template #default="scope">
-          <el-button
-            type="success"
-            size="small"
-            @click="onFaceClick(scope.row.id)"
-          >
-            面部疲劳检测
-          </el-button>
-        </template>
-      </el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button type="primary" size="small" @click="edit(scope.row.id)"><el-icon><EditPen /></el-icon> 编辑</el-button>
@@ -493,25 +466,6 @@ function onFaceClick(id) {
         </el-col>
       </el-row>
 
-      <!-- 第五行 -->
-      <el-row :gutter="20">
-        <el-col :span="24">
-          <el-form-item label="头像">
-            <el-upload
-              class="avatar-uploader"
-              action="/api/upload"
-              :headers="{'token': token}"
-              :show-file-list="false"
-              :on-success="handleAvatarSuccess"
-              :before-upload="beforeAvatarUpload"
-              >
-              <img v-if="employee.image" :src="employee.image" class="avatar" />
-              <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-            </el-upload>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      
 
       <!-- 工作经历 -->
       <!-- 第六行 -->

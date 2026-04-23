@@ -6,7 +6,9 @@ import SockJS from 'sockjs-client/dist/sockjs.min.js';
 import * as Stomp from 'stompjs';
 import * as echarts from 'echarts';
 
-const fatigueData = ref([]);
+
+const fatigueData = ref(Array(100).fill(null));
+const dataIndex = ref(0); // 当前数据索引
 const chartInstance = ref(null); // 存储ECharts实例
 const initChart = () => {
   const chartDom = document.getElementById('fatigue-chart');
@@ -22,58 +24,106 @@ const initChart = () => {
   
   // 初始配置
   const option = {
+        title: {
+      text: '疲劳指数变化曲线', // 标题文本
+      left: 'center', // 标题水平居中
+      top: 'top' // 标题垂直居上
+    },
     tooltip: {
       trigger: 'axis'
     },
     axisPointer: {
-            animation: false,
-          },
+      animation: false,
+    },
     xAxis: {
       type: 'category',
-      data: [],
+      data: Array(100).fill().map((_, index) => `${index + 1}`),
       boundaryGap: false,
       splitLine: {
-            show: false,
-          },
-          triggerEvent: true,
+        show: false,
+      },
+      triggerEvent: true,
     },
     yAxis: {
       type: 'value',
       min: 0,
-      max: 5
+      max: 10
     },
+    
     series: [{
-      name: '疲劳等级',
+      name: '疲劳指数',
       type: 'line',
       smooth: true,
+      showSymbol: false, // 隐藏数据点
       data: [],
       itemStyle: {
         color: '#409EFF' // Element Plus主题色
+      },
+      markLine: {
+        symbol: 'none', // 不显示标记点
+        data: [
+          // 疲劳阈值线 (y=6)
+          {
+            yAxis: 6,
+            name: '疲劳',
+            lineStyle: {
+              type: 'dashed',
+              color: '#FF7D00',
+              width: 2
+            },
+            label: {
+              show: true,
+              position: 'end',
+              formatter: '疲劳',
+              color: '#FF7D00'
+            }
+          },
+          
+          // 停工阈值线 (y=8.5)
+          {
+            yAxis: 8.5,
+            name: '停工',
+            lineStyle: {
+              type: 'dashed',
+              color: 'red',
+              width: 2
+            },
+            label: {
+              show: true,
+              position: 'end',
+              formatter: '停工',
+              color: 'red'
+            }
+          }
+        ]
       }
-    }]
+      
+    }],
+    
+    animation: true, // 开启动画
+    animationDurationUpdate: 500 // 数据更新动画时长
   };
   chartInstance.value.setOption(option);
 };
 // 更新图表数据
 const updateChart = (newValue) => {
-  // 保持最多20个数据点
+  // 保持最多100个数据点
   if (fatigueData.value.length >= 100) {
     fatigueData.value.shift();
   }
   fatigueData.value.push(newValue);
 
-  // 生成x轴标签
-  const xData = fatigueData.value.map((_, index) => `${index + 1}`);
 
   // 更新图表
   if (chartInstance.value) {
+    
     chartInstance.value.setOption({
-      xAxis: {
-        data: xData
-      },
       series: [{
         data: fatigueData.value
       }]
+    },{
+      notMerge: false, // 合并配置
+      lazyUpdate: false // 立即更新
     });
   }
 };
@@ -83,27 +133,40 @@ const updateTime = () => {
   const now = new Date();
   currentTime.value = now.toLocaleString(); // 本地化的时间字符串
 };
+
+const randomString = (e) =>{
+  e = e || 32;
+    var t = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678",
+    a = t.length,
+    n = "";
+    for (let i = 0; i < e; i++) n += t.charAt(Math.floor(Math.random() * a));
+    return n;
+}
+
 // 定义 stompClient
 const stompClient = ref(null);
-var userId = '12345';
+var userId = randomString(6);
 const fatigueRank = ref(null);
-// 连接 WebSocket
-const connect = () => {
-  const socket = new SockJS('http://localhost:8081/ws'); // 对应后端的 "/ws" 端点
-  stompClient.value = Stomp.over(socket);
+const emotionCat = ref(null);
+const score = ref(null);
+const rate = ref(null);
 
-  stompClient.value.connect({}, () => {
-    console.log('Connected to WebSocket');
-
-    // 订阅 "/topic" 目标
+const subscribeTopics = () => {
+  subscriptions.value.forEach(sub => sub.unsubscribe());
+  subscriptions.value = [];
+  // 订阅 "/topic" 目标
     stompClient.value.subscribe(`/topic/face_fatigue/${userId}`, (message) => {
     if (message.body) {
         try {
             const data = JSON.parse(message.body);
             console.log('Received message:', data);
             const rank = parseInt(data.fatigueRank);
+            const tempIndex = parseFloat(data.fatigueIndex);
             fatigueRank.value = rank; 
-            updateChart(rank); // 新增：更新图表
+            emotionCat.value = data.emotionCat;
+            score.value = data.score;
+            rate.value = data.rate;
+            updateChart(tempIndex); // 新增：更新图表
             // console.log(fatigueRank.value)
         } catch (error) {
             console.error('Failed to parse message:', error);
@@ -120,13 +183,59 @@ const connect = () => {
         // 在这里处理用户特定的消息
       }
     });
+}
+
+const reconnect = () => {
+  
+}
+// 新增：存储订阅对象，用于重连前清理
+const subscriptions = ref([]);
+// 新增：控制重连频率，避免频繁请求
+const isReconnecting = ref(false);
+const connect = () => {
+  if (isReconnecting.value) return;
+  isReconnecting.value = true;
+
+  // 新增：先断开旧连接（如果存在）
+  if (stompClient.value) {
+    stompClient.value.disconnect(() => {
+      console.log('旧连接已断开');
+    });
+    stompClient.value = null;
+  }
+  const socket = new SockJS('/wss'); // 对应后端的 "/ws" 端点
+  stompClient.value = Stomp.over(socket);
+  
+  stompClient.value.connect({}, () => {
+    console.log('Connected to WebSocket');
+      ElMessage.success('后台连接成功！');
+      isReconnecting.value = false;
+      subscribeTopics(); // 仅连接成功后订阅
+
+      // 连接关闭时触发重连（仅调用connect，不直接订阅）
+      socket.onclose = () => {
+        console.log('WebSocket连接已关闭，准备重连...');
+        ElMessage.warning('WebSocket连接已断开，将尝试自动重连');
+        // 延迟1秒重连，避免频繁请求
+        setTimeout(() => connect(), 1000);
+      };
+    }, 
+    // 连接错误回调（仅重连，不直接订阅）
+    (error) => {
+      console.error('Connection error:', error);
+      ElMessage.error('连接失败，将尝试自动重连');
+      isReconnecting.value = false;
+      // 延迟1秒重连
+      setTimeout(() => connect(), 1000);
+    
+  });
 
 //     const resultSubscription = stompClient.value.subscribe('/topic/fatigueResults', (message) => {
 //     const data = JSON.parse(message.body);
 //     console.log('收到疲劳分析结果:', data);
 // });
 
-  });
+
 };
 
 // 断开连接
@@ -135,6 +244,7 @@ const disconnect = () => {
     stompClient.value.disconnect();
   }
   console.log('Disconnected from WebSocket');
+  ElMessage.error('后台断开连接！');
 };
 
 
@@ -190,14 +300,14 @@ const beforeUploadVideo = (file) => {
   // 清空旧的 FormData
   uploadData.value = new FormData();
   // 添加参数
-  uploadData.value.append('userId', '12345'); // 替换为动态值
+  uploadData.value.append('userId', userId); // 替换为动态值
   uploadData.value.append('file', file);
   return true;
 };
 const customUpload = async (options) => {
   const formData = new FormData();
   formData.append('file', options.file); // 参数名必须与后端 @RequestParam("file") 一致
-  formData.append('userId', '12345'); // 参数名必须与后端 @RequestParam("userId") 一致
+  formData.append('userId', userId); // 参数名必须与后端 @RequestParam("userId") 一致
 
   try {
     const response = await axios.post(options.action, formData, {
@@ -219,17 +329,30 @@ const uploadVideoProcess = (event, file, fileList) => {
   videoFlag.value = true;
   videoUploadPercent.value = Math.floor(event.percent);
 };
+// 存储视频元数据的变量
+const videoWidth = ref(0);
+const videoHeight = ref(0);
+const videoFrameRate = ref(0);
 
 // 获取上传图片地址
 const handleVideoSuccess = (res, file) => {
   videoFlag.value = false;
   videoUploadPercent.value = 0;
 
-  if (res && res.status === 200) {
+  if (res?.data?.code === 0) {
     // videoForm.value.storageurl = res.data;
     ElMessage.success('上传成功！');
+    // 创建一个临时的 video 元素来获取元数据
+    const video = document.createElement('video');
+    video.src = localVideoUrl.value;
+    video.onloadedmetadata = () => {
+      videoWidth.value = video.videoWidth;
+      videoHeight.value = video.videoHeight;
+      
+      videoFrameRate.value = 23.98; // 可以根据实际情况调整获取帧率的方式
+    };
   } else {
-    const errorMsg = res?.data?.message || '视频上传失败，请重新上传！';
+    const errorMsg = res?.data?.msg || '视频上传失败，请重新上传！';
     ElMessage.error(errorMsg);
   }
 };
@@ -314,14 +437,13 @@ const handleVideoSuccess = (res, file) => {
 
     <el-container class="main-container">
       <!-- 左侧 -->
-      
-    <el-main>
-    <!-- 视频上传区域 -->
+       <el-aside >
+        <!-- 视频上传区域 -->
     <el-form-item class="video-upload-item" prop="storageurl">
       <el-upload
       class="el-upload"
 
-        action="http://localhost:8081/faceDetectService/video_upload"
+        action="/faceDetectService/video_upload"
         :on-change="handleFileChange"
         :show-file-list="false"
         :on-success="handleVideoSuccess"
@@ -364,10 +486,12 @@ const handleVideoSuccess = (res, file) => {
       </el-upload>
     </el-form-item>
     
-  </el-main>
-  <el-aside >
-        <div id="fatigue-chart" style="width: 100%; height: 100%;"></div>
+       
     </el-aside>
+    <el-main>
+     <div id="fatigue-chart" style="width: 100%; height: 100%;"></div>
+  </el-main>
+ 
   <!-- <el-divider direction="vertical" /> -->
     <el-aside >
       <el-descriptions
@@ -377,18 +501,32 @@ const handleVideoSuccess = (res, file) => {
     class="asideDes"
     :content-style="{
     'text-align': 'center',
-    'min-width': '250px',
+    'min-width': '150px',
     'word-break': 'break-all'
   }"
     
   >
     <el-descriptions-item label="时间" :label-class-name="label-style">{{ currentTime }}</el-descriptions-item>
-    <el-descriptions-item label="帧宽度"  >1920</el-descriptions-item>
-    <el-descriptions-item label="帧高度" >1080</el-descriptions-item>
-    <el-descriptions-item label="帧速率" >23.98fps</el-descriptions-item>
-    <el-descriptions-item label="面部危险等级"
-    ><span >{{ fatigueRank === null ? '无' : fatigueRank }}</span></el-descriptions-item>
-    <el-descriptions-item label="是否需要停工" ><el-text class="mx-1" type="danger">{{ fatigueRank === null ? '无' : (fatigueRank > 2 ?'是':'否') }}</el-text></el-descriptions-item>
+    <el-descriptions-item label="帧宽度" >{{ videoWidth }}</el-descriptions-item>
+    <el-descriptions-item label="帧高度" >{{ videoHeight }}</el-descriptions-item>
+    <!--<el-descriptions-item label="帧速率" >{{ videoFrameRate }}fps</el-descriptions-item>-->
+    <!--<el-descriptions-item label="面部危险等级"
+    >
+  <el-text class="mx-1" :type="fatigueRank === null || fatigueRank <= 2 ? 'primary' : 'danger'">{{ fatigueRank === null ? '无' : fatigueRank }}</el-text>
+</el-descriptions-item>-->
+<el-descriptions-item label="情绪类型"
+    >
+  <el-text class="mx-1" :type="emotionCat === null || emotionCat === '其它' ? 'primary' : 'danger'">{{ emotionCat === null ? '无' : emotionCat }}</el-text>
+</el-descriptions-item>
+<el-descriptions-item label="本次检测准确率"
+    >
+  <el-text class="mx-1" :type="score === null || emotionCat === '其它' ? 'primary' : 'danger'">{{ score === null ? '无' : score }}</el-text>
+</el-descriptions-item>
+<el-descriptions-item label="综合检测准确率"
+    >
+  <el-text class="mx-1" :type="rate === null || emotionCat === '其它' ? 'primary' : 'danger'">{{ rate === null ? '无' : rate }}</el-text>
+</el-descriptions-item>
+    <el-descriptions-item label="是否需要停工" ><el-text class="mx-1" :type="emotionCat === null || emotionCat === '其它' ? 'primary' : 'danger'">{{ emotionCat === null ? '否' : (emotionCat === '其它' ?'否':'是') }}</el-text></el-descriptions-item>
   </el-descriptions>
     </el-aside>
     <!-- 左边放置信息的区域 -->
@@ -408,7 +546,7 @@ const handleVideoSuccess = (res, file) => {
 }
 
 :deep(.el-upload__tip){
-  height: 10%;
+  height: 20%;
   width: 100%;
 }
 
@@ -458,6 +596,7 @@ const handleVideoSuccess = (res, file) => {
 .el-main{
       align-items: stretch;
       height: 100%;
+      width: 60%;
   }
 .common-layout{
   height: 100%;
@@ -476,7 +615,7 @@ const handleVideoSuccess = (res, file) => {
   width: 30%;
 }
 .asideDes {
-  width: 100%;
+  width: 80%;
   height: 80%;
 }
 /* 确保描述项容器填充高度 */

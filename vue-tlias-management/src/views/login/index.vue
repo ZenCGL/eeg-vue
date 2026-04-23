@@ -13,6 +13,8 @@ const login = async () => {
   if(result.code){ //成功
     //1. 提示信息
     ElMessage.success('登录成功');
+    // ✅ 保存 token
+    localStorage.setItem('token', result.data.token);
     //2. 存储当前登录员工信息
     localStorage.setItem('loginUser',JSON.stringify(result.data));
     //3. 跳转页面 - 首页
